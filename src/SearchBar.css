@@ -1,0 +1,25 @@
+.search-bar {
+    display: flex;
+    text-align: center;
+    width: 100%;
+}
+
+.search-bar-wrapper {
+    margin: auto;
+    display: flex;
+    align-items: center;
+}
+
+.search-bar-wrapper input[type="text"] {
+    line-height: 2rem;
+    height: 2rem;
+    width: 24rem;
+    padding: 0 0.5rem;
+    border-width: 1px;
+
+}
+.search-bar-wrapper input[type="submit"] {
+    line-height: 2rem;
+    height: 2.1rem;
+    margin-right: 1rem;
+}
