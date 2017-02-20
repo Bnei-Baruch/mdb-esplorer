@@ -2,6 +2,7 @@
   "name": "mdb-esplorer",
   "version": "0.1.0",
   "private": true,
+  "homepage": "http://app.archive.bbdomain.org/mdb-esplorer/",
   "devDependencies": {
     "react-scripts": "0.9.0"
   },
