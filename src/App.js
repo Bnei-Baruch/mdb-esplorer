@@ -4,6 +4,8 @@ import Results from './Results';
 import './App.css';
 import logo from './KL_Tree_64.png';
 
+const API_BACKEND = process.env.NODE_ENV !== 'production' ? process.env.REACT_APP_API_BACKEND : '';
+
 class App extends Component {
 
     constructor(props) {
@@ -14,7 +16,7 @@ class App extends Component {
     doSearch(searchTerm) {
         console.log('Searching for:', searchTerm);
         this.setState({inProgress: true});
-        fetch('http://localhost:8080/query?text=' + searchTerm)
+        fetch(API_BACKEND + 'query?text=' + searchTerm)
             .then(response => {
                 if (response.ok) {
                     return response.json().then(data => this.setState({data, inProgress: false}));
