@@ -50,6 +50,11 @@
     padding: 1rem;
 }
 
+.item-container-description em,
+.item-container-full-description em {
+    font-weight: bold;
+}
+
 .item-container-full-description {
     font-size: smaller;
     color: darkslategray;

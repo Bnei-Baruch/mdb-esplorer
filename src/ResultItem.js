@@ -46,13 +46,33 @@ class ResultItem extends Component {
         </div>;
     }
 
-    renderContainers() {
+    prepareContainers() {
         const data = this.props.data,
             source = data._source,
-            sortedContainers = source.containers.sort((a, b) => a.position - b.position);
+            highlight = data.highlight;
 
+        let containers = source.containers;
+
+        // Attach search hit highlight information
+        if (!!highlight) {
+            const descriptionHighlight = data.highlight["containers.description"] || [],
+                fullDescriptionHighlight = data.highlight["containers.full_description"] || [];
+
+            containers.forEach((x, i) => {
+                x["highlight"] = {
+                    "description": i < descriptionHighlight.length ? descriptionHighlight[i] : null,
+                    "full_description": i < fullDescriptionHighlight.length ? fullDescriptionHighlight[i] : null
+                };
+            });
+        }
+
+        // Sort by part of lesson
+        return containers.sort((a, b) => a.position - b.position);
+    }
+
+    renderContainers() {
         return <div className="item-containers">
-            {sortedContainers.map(x => this.renderContainer(x))}
+            {this.prepareContainers().map(x => this.renderContainer(x))}
         </div>
     }
 
@@ -68,7 +88,11 @@ class ResultItem extends Component {
                 </ul>
             </div>
             <div className="item-container-title">
-                {container.description}
+                {!!container.highlight.description ?
+                    <span className="item-container-description"
+                          dangerouslySetInnerHTML={{__html: container.highlight.description}}/> :
+                    container.description
+                }
                 &nbsp;&nbsp;
                 <a href={"http://kabbalahmedia.info/ui/" + container.kmedia_id} target="_blank">kmedia</a>
                 <br/>
@@ -76,7 +100,11 @@ class ResultItem extends Component {
                 <br/>
                 <br/>
                 {container.full_description ?
-                    <div className="item-container-full-description">{container.full_description}</div> :
+                    <div className="item-container-full-description">
+                        {!!container.highlight.full_description ?
+                            <span dangerouslySetInnerHTML={{__html: container.highlight.full_description}}/> :
+                            container.full_description}
+                    </div> :
                     null
                 }
                 <br/>
