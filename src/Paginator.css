@@ -1,0 +1,10 @@
+.paginator {
+    float: right;
+}
+.paginator a {
+    margin-right: 0.5rem;
+}
+
+.paginator-active {
+    font-size: larger;
+}

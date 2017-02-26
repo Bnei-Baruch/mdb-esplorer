@@ -10,13 +10,18 @@ class App extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {data: null, inProgress: false}
+        this.state = {
+            data: null,
+            searchTerm: '',
+            inProgress: false,
+            page: 0
+        }
     }
 
-    doSearch(searchTerm) {
-        console.log('Searching for:', searchTerm);
-        this.setState({inProgress: true});
-        fetch(API_BACKEND + 'query?text=' + searchTerm)
+    doSearch(searchTerm, page=0) {
+        console.log('Searching for:', searchTerm, ' page: ', page);
+        this.setState({searchTerm, page, inProgress: true});
+        fetch(API_BACKEND + 'query?text=' + searchTerm + '&page=' + page)
             .then(response => {
                 if (response.ok) {
                     return response.json().then(data => this.setState({data, inProgress: false}));
@@ -39,9 +44,12 @@ class App extends Component {
                 <p className="app-intro">
                     Enter search term and click enter (or search button)
                 </p>
-                <SearchBar onSearch={(x) => this.doSearch(x)} inProgress={this.state.inProgress}/>
+                <SearchBar onSearch={(x) => this.doSearch(x)}
+                           inProgress={this.state.inProgress}/>
                 <br/>
-                <Results data={this.state.data}/>
+                <Results data={this.state.data}
+                         page={this.state.page}
+                         onPageChange={(x) => this.doSearch(this.state.searchTerm, x)}/>
             </div>
         );
     }

@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react';
 import ResultItem from './ResultItem';
+import Paginator from './Paginator';
 import './Results.css';
 
 class Results extends Component {
@@ -8,10 +9,11 @@ class Results extends Component {
     };
 
     renderSummary() {
-        const data = this.props.data;
+        const {data, page, onPageChange} = this.props;
         return !!data ?
             <div className="results-summary">
                 Found {data.hits.total} results ({data.took} ms)
+                <Paginator page={page} totalPages={Math.floor(data.hits.total / 10)} onChange={onPageChange}/>
             </div> :
             null;
     }
