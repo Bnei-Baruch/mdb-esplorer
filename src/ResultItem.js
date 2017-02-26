@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from 'react';
+import {stripTime, formatDuration} from './utils';
 import './ResultItem.css';
 
 const SERVER_MAP = {
@@ -40,7 +41,7 @@ class ResultItem extends Component {
                 <li><strong>Score:</strong> {data._score}</li>
                 <li><strong>Index:</strong> {data._index}</li>
                 <li><strong>ID:</strong> {data._id}</li>
-                <li><strong>Film Date:</strong> {source.film_date}</li>
+                <li><strong>Film Date:</strong> {stripTime(source.film_date)}</li>
                 <li><strong>Kmedia ID:</strong> {source.kmedia_id}</li>
             </ul>
         </div>;
@@ -80,8 +81,8 @@ class ResultItem extends Component {
         return <div className="item-container" key={container.kmedia_id}>
             <div className="item-container-details">
                 <ul className="details-list">
-                    <li><strong>Film Date:</strong> {container.filmdate}</li>
-                    <li><strong>Duration:</strong> {container.playtime_secs}</li>
+                    <li><strong>Film Date:</strong> {stripTime(container.filmdate)}</li>
+                    <li><strong>Duration:</strong> {formatDuration(container.playtime_secs)}</li>
                     <li><strong>Position:</strong> {container.position}</li>
                     <li><strong>Kmedia ID:</strong> {container.kmedia_id}</li>
                     <li><strong>Secure:</strong> {container.secure}</li>
@@ -98,7 +99,6 @@ class ResultItem extends Component {
                 <br/>
                 <small>{container.name}</small>
                 <br/>
-                <br/>
                 {container.full_description ?
                     <div className="item-container-full-description">
                         {!!container.highlight.full_description ?
@@ -107,7 +107,6 @@ class ResultItem extends Component {
                     </div> :
                     null
                 }
-                <br/>
                 <br/>
                 <div className="item-container-files">
                     {this.renderFiles(container.file_assets)}
