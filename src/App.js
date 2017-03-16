@@ -21,7 +21,7 @@ class App extends Component {
     doSearch(searchTerm, page=0) {
         console.log('Searching for:', searchTerm, ' page: ', page);
         this.setState({searchTerm, page, inProgress: true});
-        fetch(API_BACKEND + 'query?text=' + searchTerm + '&page=' + page)
+        fetch(API_BACKEND + 'search?text=' + searchTerm + '&page=' + page)
             .then(response => {
                 if (response.ok) {
                     return response.json().then(data => this.setState({data, inProgress: false}));

@@ -2,31 +2,14 @@ import React, {Component, PropTypes} from 'react';
 import {stripTime, formatDuration} from './utils';
 import './ResultItem.css';
 
-const SERVER_MAP = {
-    "offline": "http://www.kabbalahmedia.info/offline",
-    "kids-2002": "http://files.kabbalahmedia.info/kids/2002",
-    "kids-2003": "http://files.kabbalahmedia.info/kids/2003",
-    "kids-2001": "http://files.kabbalahmedia.info/kids/2001",
-    "WorldsBeyondbook": "http://files.kabbalahmedia.info/CD/WorldsBeyond",
-    "ShlaveyHasulamBook": "http://files.kabbalahmedia.info/CD/ShlaveiHaSulam1",
-    "ShlaveyHasulamBook2": "http://files.kabbalahmedia.info/CD/ShlaveiHaSulam2",
-    "ShlaveyHasulamBook3": "http://files.kabbalahmedia.info/CD/ShlaveiHaSulam3",
-    "MEKOROT": "http://files.kabbalahmedia.info/mekorot",
-    "VIDEO_FOR_SITE": "http://files.kabbalahmedia.info/videoforsite",
-    "VIDEO-EU": "http://files.kabbalahmedia.info/video",
-    "AUDIO-EU": "http://files.kabbalahmedia.info/audio",
-    "FILES-EU": "http://files.kabbalahmedia.info/files",
-    "TEXTS": "http://files.kabbalahmedia.info/texts",
-    "MUSIC-EU": "http://files.kabbalahmedia.info/MP3/music"
-};
-
 const LANG_ORDER = new Map(['en', 'he', 'ru', 'es', 'it', 'de', 'nl', 'fr', 'pt', 'tr', 'pl', 'ar', 'hu', 'fi', 'lt',
     'ja', 'bg', 'ka', 'no', 'sv', 'hr', 'zh', 'fa', 'ro', 'hi', 'mk', 'sl', 'lv', 'sk', 'cs', 'ua']
     .map((x, i) => [x, i + 1]));
-const FILE_TYPE_ORDER = new Map(['mp3', 'wmv', 'mp4', 'flv', 'doc', 'jpg', 'zip', 'xls', 'docx', 'htm', 'pdf', 'wma',
-    'epub', '.mp', 'gif', 'bmp', 'swf', 'rb', '.wm', 'rtf', 'mid', 'mov', 'fb2', 'ZIP', 'asf', 'tmp', 'tif', 'pps',
-    'mpg', 'avi', 'rar', 'wav', 'sfk', 'php', 'm3', 'son', 'Doc', 'ppt', 'aac', 'FLV', 'txt', 'JPG', '7z', 'DOC', 'WMV',
-    'lnk'].map((x, i) => [x, i + 1]));
+
+const FILE_TYPE_ORDER = new Map(['video', 'audio', 'image', 'text', 'sheet', 'banner', 'presentation']
+    .map((x, i) => [x, i + 1]));
+
+
 
 class ResultItem extends Component {
     static propTypes = {
@@ -39,77 +22,51 @@ class ResultItem extends Component {
         return <div className="item-details">
             <ul className="details-list">
                 <li><strong>Score:</strong> {data._score}</li>
-                <li><strong>Index:</strong> {data._index}</li>
                 <li><strong>ID:</strong> {data._id}</li>
                 <li><strong>Film Date:</strong> {stripTime(source.film_date)}</li>
-                <li><strong>Kmedia ID:</strong> {source.kmedia_id}</li>
+                <li><strong>Type:</strong> {source.content_type}</li>
             </ul>
         </div>;
     }
 
-    prepareContainers() {
-        const data = this.props.data,
-            source = data._source,
-            highlight = data.highlight;
-
-        let containers = source.containers;
-
-        // Attach search hit highlight information
-        if (!!highlight) {
-            const descriptionHighlight = data.highlight["containers.description"] || [],
-                fullDescriptionHighlight = data.highlight["containers.full_description"] || [];
-
-            containers.forEach((x, i) => {
-                x["highlight"] = {
-                    "description": i < descriptionHighlight.length ? descriptionHighlight[i] : null,
-                    "full_description": i < fullDescriptionHighlight.length ? fullDescriptionHighlight[i] : null
-                };
-            });
-        }
-
-        // Sort by part of lesson
-        return containers.sort((a, b) => a.position - b.position);
-    }
-
-    renderContainers() {
-        return <div className="item-containers">
-            {this.prepareContainers().map(x => this.renderContainer(x))}
+    renderUnits() {
+        return <div className="item-units">
+            {this.props.data._source.content_units.map(x => this.renderUnit(x))}
         </div>
     }
 
-    renderContainer(container) {
-        return <div className="item-container" key={container.kmedia_id}>
-            <div className="item-container-details">
+    renderUnit(unit) {
+        let name = unit.names[unit.original_language],
+            description = unit.descriptions[unit.original_language];
+
+        for (let lang in LANG_ORDER.keys()) {
+            if (typeof name === 'undefined' || name === "") {
+                name = unit.names[lang]
+            }
+            if (typeof description === 'undefined' || description === "") {
+                description = unit.descriptions[lang]
+            }
+        }
+
+        return <div className="item-unit" key={unit.mdb_uid}>
+            <div className="item-unit-details">
                 <ul className="details-list">
-                    <li><strong>Film Date:</strong> {stripTime(container.filmdate)}</li>
-                    <li><strong>Duration:</strong> {formatDuration(container.playtime_secs)}</li>
-                    <li><strong>Position:</strong> {container.position}</li>
-                    <li><strong>Kmedia ID:</strong> {container.kmedia_id}</li>
-                    <li><strong>Secure:</strong> {container.secure}</li>
+                    <li><strong>MDB:</strong> {unit.mdb_uid}</li>
+                    <li><strong>Type:</strong> {unit.content_type}</li>
+                    <li><strong>Film Date:</strong> {stripTime(unit.film_date)}</li>
+                    <li><strong>Duration:</strong> {formatDuration(unit.duration)}</li>
+                    <li><strong>Language:</strong> {unit.original_language}</li>
+                    <li><strong>Secure:</strong> {unit.secure}</li>
+                    <li><strong>Relation:</strong> {unit.name_in_collection}</li>
                 </ul>
             </div>
-            <div className="item-container-title">
-                {!!container.highlight.description ?
-                    <span className="item-container-description"
-                          dangerouslySetInnerHTML={{__html: container.highlight.description}}/> :
-                    container.description
-                }
-                &nbsp;&nbsp;
-                <a href={"http://kabbalahmedia.info/ui/" + container.kmedia_id} target="_blank">kmedia</a>
+            <div className="item-unit-title">
+                <span className="item-unit-name">{name}</span>
                 <br/>
-                <small>{container.name}</small>
+                <div className="item-unit-description">{description}</div>
                 <br/>
-                {container.full_description ?
-                    <div className="item-container-full-description">
-                        {!!container.highlight.full_description ?
-                            <span dangerouslySetInnerHTML={{__html: container.highlight.full_description}}/> :
-                            container.full_description}
-                    </div> :
-                    null
-                }
-                <br/>
-                <div className="item-container-files">
-                    {this.renderFiles(container.file_assets)}
+                <div className="item-unit-files">
+                    {this.renderFiles(unit.files)}
                 </div>
             </div>
         </div>
@@ -132,10 +89,8 @@ class ResultItem extends Component {
                     {byLang.map(y => {
                         const files = y[1][x] || [];
                         return <td key={y[0]}>
-                            {files.map(z => <a href={SERVER_MAP[z.server_name_id] + "/" + z.name}
-                                               key={z.kmedia_id}
-                                               target="_blank">
-                                {z.kmedia_id}
+                            {files.map(z => <a href={"files/" + z.mdb_uid} key={z.mdb_uid} target="_blank" title={z.name}>
+                            {z.mdb_uid}
                             </a>)}
                         </td>
                     })}
@@ -149,8 +104,8 @@ class ResultItem extends Component {
         // Group files by language and type
         let allTypes = new Set(),
             byLangAndType = files.reduce((groups, item) => {
-                const i = item.lang,
-                    j = item.asset_type_id;
+                const i = item.language,
+                    j = item.type;
 
                 allTypes.add(j);
 
@@ -170,8 +125,8 @@ class ResultItem extends Component {
 
         // Sort all available file types
         let sortedTypes = Array.from(allTypes).sort((a, b) => {
-            const k1 = FILE_TYPE_ORDER.get(a[0]) || LANG_ORDER.size + 1,
-                k2 = FILE_TYPE_ORDER.get(b[0]) || LANG_ORDER.size + 1;
+            const k1 = FILE_TYPE_ORDER.get(a) || FILE_TYPE_ORDER.size + 1,
+                k2 = FILE_TYPE_ORDER.get(b) || FILE_TYPE_ORDER.size + 1;
             return k1 - k2;
         });
 
@@ -182,7 +137,7 @@ class ResultItem extends Component {
         return (
             <div className="results-item">
                 {this.renderDetails()}
-                {this.renderContainers()}
+                {this.renderUnits()}
             </div>
         );
     }
