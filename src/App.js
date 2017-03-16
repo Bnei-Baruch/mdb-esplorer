@@ -4,7 +4,7 @@ import Results from './Results';
 import './App.css';
 import logo from './KL_Tree_64.png';
 
-const API_BACKEND = process.env.NODE_ENV !== 'production' ? process.env.REACT_APP_API_BACKEND : '';
+const API_BACKEND = process.env.NODE_ENV !== 'production' ? process.env.REACT_APP_API_BACKEND : '/backend/';
 
 class App extends Component {
 
